@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const helmet = require("helmet");
 const connectDB = require("./config/db");
 const errorHandler = require("./middlewares/errorHandler");
 
@@ -14,7 +15,12 @@ const app = express();
 connectDB();
 
 // Global Middlewares
-app.use(cors());
+app.use(helmet());
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN || "*",
+  }),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -26,7 +32,17 @@ app.use("/api/meals", mealRoutes);
 app.get("/", (req, res) => {
   res
     .status(200)
-    .json({ success: true, message: "Cal AI Backend System Online" });
+    .json({ success: true, message: "MacroLens Backend Online" });
+});
+
+// Keep-alive endpoint for cron jobs (Render free tier)
+app.get("/api/health", (req, res) => {
+  res.status(200).json({
+    success: true,
+    status: "healthy",
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  });
 });
 
 // Centralized Error Handler

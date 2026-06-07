@@ -5,6 +5,8 @@ const userSchema = new mongoose.Schema(
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true, index: true },
     password: { type: String, required: true },
+    verificationPin: { type: String }, // The random 5-digit code
+    isVerified: { type: Boolean, default: false },
     profile: {
       age: { type: Number, required: true },
       weight: { type: Number, required: true }, // in kg
@@ -20,6 +22,9 @@ const userSchema = new mongoose.Schema(
         enum: ["lose_weight", "maintain", "gain_weight"],
         required: true,
       },
+    },
+    preferences: {
+      unitSystem: { type: String, enum: ["metric", "imperial"], default: "metric" },
     },
     dailyTargets: {
       calories: { type: Number, required: true },
