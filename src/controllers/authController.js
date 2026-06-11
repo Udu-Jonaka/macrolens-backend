@@ -17,6 +17,13 @@ exports.register = async (req, res, next) => {
     // 1. Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
+      if (!existingUser.isVerified) {
+        return res.status(403).json({
+          success: false,
+          error: "Account exists but is unverified. Please verify your email.",
+          needsVerification: true,
+        });
+      }
       return res
         .status(400)
         .json({ success: false, error: "Email is already registered" });
@@ -167,7 +174,7 @@ exports.login = async (req, res, next) => {
     if (!user.isVerified) {
       return res
         .status(403)
-        .json({ success: false, error: "Please verify your email to log in" });
+        .json({ success: false, error: "Please verify your email to log in", needsVerification: true });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
